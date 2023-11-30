@@ -65,24 +65,27 @@ def generate_maze(rows, cols):
 
 def bfs(maze, start, end):
     rows, cols = len(maze), len(maze[0])
-    visited = [[False for i in range(cols)] for j in range(rows)]
+    visited = [[False for _ in range(cols)] for _ in range(rows)]
     queue = deque([(start, [])])
     nodes_visited = 0  # Track the number of nodes visited
+
+    visited[start[0]][start[1]] = True  # Mark the start node as visited
 
     while queue:
         (r, c), path = queue.popleft()
         nodes_visited += 1  # Increment the count of visited nodes
+
         if (r, c) == end:
             return path + [(r, c)], nodes_visited  # Return path and nodes visited
-        if visited[r][c]:
-            continue
-        visited[r][c] = True
+
         for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             nr, nc = r + dr, c + dc
             if 0 <= nr < rows and 0 <= nc < cols and maze[nr][nc] == ' ' and not visited[nr][nc]:
+                visited[nr][nc] = True  # Mark the node as visited before enqueueing
                 queue.append(((nr, nc), path + [(r, c)]))
 
     return [], nodes_visited  # If no path found, return an empty path and nodes visited
+
 
 def dfs(maze, start, end):
     rows, cols = len(maze), len(maze[0])
@@ -103,7 +106,7 @@ def dfs(maze, start, end):
             if 0 <= nr < rows and 0 <= nc < cols and maze[nr][nc] == ' ' and not visited[nr][nc]:
                 stack.append(((nr, nc), path + [(r, c)]))
 
-    return [], nodes_visited 
+    return [], nodes_visited
 
 def ucs(maze, start, end):
     rows, cols = len(maze), len(maze[0])
@@ -135,8 +138,6 @@ def draw_maze(screen, maze):
         for c in range(len(maze[0])):
             if maze[r][c] == '%':
                 color = BLACK
-            elif maze[r][c] == '#':
-                color = RED
             else:
                 color = WHITE
             pygame.draw.rect(screen, color, (c * CELL_WIDTH, r * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT))
@@ -173,7 +174,7 @@ def visualize_algorithm(maze, algorithm):
 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption(f'{algorithm.upper()} Maze Visualization')
+    pygame.display.set_caption(str(algorithm).upper() + " Maze Visualization")
 
     running = True
     current_step = 0
@@ -184,7 +185,7 @@ def visualize_algorithm(maze, algorithm):
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:  # Press 'Space' to exit the loop
+                if event.key == pygame.K_SPACE:  
                     running = False
 
         screen.fill(BLACK)
@@ -212,7 +213,7 @@ def visualize_algorithm(maze, algorithm):
                 draw_current_node(screen, maze, current_node)
 
         pygame.display.flip()
-        pygame.time.wait(300)  # Adjust the delay here (milliseconds)
+        pygame.time.wait(300)  
 
         current_step += 1
         if current_step >= len(path):
@@ -221,7 +222,8 @@ def visualize_algorithm(maze, algorithm):
 
     pygame.quit()
 
-    print(f"{algorithm.upper()} Nodes Visited: ", nodes_visited)
+    print(str(algorithm).upper(), "Nodes Visited: ", nodes_visited)
+    print(str(algorithm).upper(), "Length: ", len(path))
 
 def main():
     with open('maze.json', 'r') as file:
