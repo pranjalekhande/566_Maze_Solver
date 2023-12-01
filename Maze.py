@@ -1,3 +1,10 @@
+import heapq
+import random
+from collections import deque
+import pygame
+import json
+import time
+
 WIDTH, HEIGHT = 800, 600
 ROWS, COLS = 21, 20
 CELL_WIDTH = WIDTH // COLS
@@ -9,11 +16,6 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 PINK = (255, 192, 203)
 
-import heapq
-import random
-from collections import deque
-import pygame
-import json
 
 def generate_maze(rows, cols):
     maze = [['%' for _ in range(cols)] for _ in range(rows)]
@@ -128,10 +130,11 @@ def ucs(maze, start, end):
         for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             nr, nc = r + dr, c + dc
             if 0 <= nr < rows and 0 <= nc < cols and maze[nr][nc] == ' ' and not visited[nr][nc]:
-                new_cost = cost + 1  # In this case, cost is just the number of steps
+                new_cost = len(path) + 1  # Increment the cost by 1 for each step from start to current node
                 heapq.heappush(queue, (new_cost, (nr, nc), path + [(r, c)]))
 
     return [], nodes_visited
+
 
 def draw_maze(screen, maze):
     for r in range(len(maze)):
@@ -171,7 +174,9 @@ def visualize_algorithm(maze, algorithm):
     else:
         print("Invalid algorithm choice!")
         return
-
+    
+    start_time = time.time()
+    
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption(str(algorithm).upper() + " Maze Visualization")
@@ -180,6 +185,7 @@ def visualize_algorithm(maze, algorithm):
     current_step = 0
     explored_nodes = []
 
+    # start_time = time.time() (should start be from here or from the one before ...)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -219,13 +225,17 @@ def visualize_algorithm(maze, algorithm):
         if current_step >= len(path):
             # current_step = 0
             running = False
-
+    
     pygame.quit()
+    end_time = time.time()
+    duration = end_time - start_time
 
     print(str(algorithm).upper(), "Nodes Visited: ", nodes_visited)
     print(str(algorithm).upper(), "Length: ", len(path))
+    print(str(algorithm).upper(), "Time Taken: ", duration)
 
 def main():
+    # maze = generate_maze(ROWS, COLS)
     with open('maze.json', 'r') as file:
         maze = json.load(file)
 
